@@ -1,5 +1,11 @@
 <h1 align="center">Bluetooth Gestures for Spotify</h1> 
 
+<p align="center">
+  <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/EchterAlsFake/BluetoothGesturesSpotify/total?style=for-the-badge&logoColor=grey&labelColor=%2300CCCC&color=purple">
+
+</p>
+
+
 # Description
 
 This Python script allows you to control the Spotify playback using your gestures from your Ear Buds / Bluetooth headphones
