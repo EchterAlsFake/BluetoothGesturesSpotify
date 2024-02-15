@@ -20,12 +20,14 @@ import http.server
 import webbrowser
 import threading
 import socketserver
-
+import shutil
+import importlib
 from urllib.parse import urlparse, parse_qs
 from spotipy.oauth2 import SpotifyOAuth
 from colorama import Fore
 from evdev import InputDevice, list_devices as ev_list_devices, ecodes
-
+import os
+import certifi
 PORT = 8888
 Handler = http.server.SimpleHTTPRequestHandler
 
@@ -35,6 +37,31 @@ SPOTIFY_CLIENT_ID = None
 SPOTIFY_CLIENT_SECRET = None
 SPOTIFY_REDIRECT_URI = None
 # These will be containing the information when compiling for release
+
+with importlib.resources.path("certifi", "cacert.pem") as ca_path:
+    path = ca_path
+
+
+def copy_cert_for_nonroot_access():
+    original_cert_path = certifi.where()
+    new_cert_path = "/home/nonrootuser/.certs/cacert.pem"  # Adjust path as needed
+
+    # Ensure the target directory exists
+    os.makedirs(os.path.dirname(new_cert_path), exist_ok=True)
+
+    # Copy the cert file
+    shutil.copyfile(original_cert_path, new_cert_path)
+
+    # Adjust permissions to ensure it's readable
+    os.chmod(new_cert_path, 0o644)
+
+    # Point requests to use the copied cert file
+    os.environ['REQUESTS_CA_BUNDLE'] = new_cert_path
+    print(f"Copied CA certificate to {new_cert_path} and updated REQUESTS_CA_BUNDLE.")
+
+
+# Call this function before dropping privileges
+copy_cert_for_nonroot_access()
 
 
 class SpotifyAuthHandler(http.server.SimpleHTTPRequestHandler):
@@ -164,6 +191,7 @@ class EarBudsGestures:
 
     def spotify(self):
         self.drop_to_user()
+        os.environ['REQUESTS_CA_BUNDLE'] = "/home/nonrootuser/.certs/cacert.pem"
 
         if SPOTIFY_CLIENT_ID is None and SPOTIFY_CLIENT_SECRET is None and SPOTIFY_REDIRECT_URI is None:
             json_file_path = 'spotify_credentials.json'

@@ -5,6 +5,15 @@
 This Python script allows you to control the Spotify playback using your gestures from your Ear Buds / Bluetooth headphones
 on Linux systems.
 
+# Important Security Notice
+
+This script needs root access to get the list of available devices to find your headphpnes, but to get the 
+spotify access token I need to start a session in your browser which I can't use root access for. This is why
+the script drops the root privileges. The problem with this is that the path for the CA certificate is invalid.
+Spotify needs HTTPS connections for the API. The script will create a new directory in your home directory
+`/home/nonrootuser/.certs/cecert.pem`, so that I can access it after dropping privileges. Just if you are curious what
+this is...
+
 # How it Works
 Basically, your Ear Buds (or any other bt device) are sending keys to the system when you press gestures. There's a protocol around it called `AVRCP`. 
 It is some kind of general standard and these keys can be captured. Now what this script does is, it basically captures the keys and uses the Spotify API
